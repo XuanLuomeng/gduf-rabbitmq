@@ -18,6 +18,8 @@ public class Task2 {
 
     public static void main(String[] args) throws Exception {
         Channel channel = RabbitMqUtils.getChannel();
+        //开启发布确认
+        channel.confirmSelect();
         //声明队列
         boolean durable = true;//需要让Queue进行持久化
         channel.queueDeclare(TASK_QUEUE_NAME, durable, false, false, null);

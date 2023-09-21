@@ -1,4 +1,4 @@
-package com.gduf.rabbitmq;
+package com.gduf.rabbitmq.three;
 
 import com.gduf.rabbitmq.utils.RabbitMqUtils;
 import com.gduf.rabbitmq.utils.SleepUtils;
