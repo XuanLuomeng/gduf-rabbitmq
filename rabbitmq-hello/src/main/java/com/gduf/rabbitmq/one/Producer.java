@@ -1,11 +1,14 @@
 package com.gduf.rabbitmq.one;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -39,9 +42,21 @@ public class Producer {
          * 4.是否自动删除 最后一个消费者端开连接以后 该队列依据是否自动删除 true自动删除 false不自动删除
          * 5.其它参数
          */
-        channel.queueDeclare(QUEUE_NAME,false,false,false,null);
+        Map<String, Object> arguments = new HashMap<>();
+        //官方允许范围是0-255 但建议设置在0-10之间 因为设置越大越消耗CPU和内存
+        arguments.put("x-max-priority", 10);
+        channel.queueDeclare(QUEUE_NAME, true, false, false, arguments);
         //发消息(初次使用)
-        String message = "hello world";
+//        String message = "hello world";
+        for (int i = 1; i < 11; i++) {
+            String message = "info" + i;
+            if (i == 5) {
+                AMQP.BasicProperties properties = new AMQP.BasicProperties().builder().priority(5).build();
+                channel.basicPublish("", QUEUE_NAME, properties, message.getBytes(StandardCharsets.UTF_8));
+            } else {
+                channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+            }
+        }
         /**
          * 发送一个消费
          * 1.发送到那个交换机
@@ -49,7 +64,7 @@ public class Producer {
          * 3.其它参数信息
          * 4.发送消息的消息体
          */
-        channel.basicPublish("",QUEUE_NAME,null,message.getBytes(StandardCharsets.UTF_8));
+//        channel.basicPublish("",QUEUE_NAME,null,message.getBytes(StandardCharsets.UTF_8));
         System.out.println("消息发送完毕");
     }
 }
